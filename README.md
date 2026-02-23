@@ -39,18 +39,19 @@ Django REST API Backend für die Quizly-Anwendung. Erstellt automatisch **10 Qui
 
 ### Erforderlich (Must-Have) ✅
 
-| Komponente  | Anforderung        | Details                                                                         |
-| ----------- | ------------------ | ------------------------------------------------------------------------------- |
-| **Python**  | 3.9+               | Windows/macOS/Linux                                                             |
-| **FFmpeg**  | Aktuellste Version | [Installation weiter unten](#ffmpeg-setup)                                      |
-| **API Key** | Google Gemini      | Kostenlos von [Google AI Studio](https://ai.google.dev/gemini-api/docs/api-key) |
+| Komponente  | Anforderung        | Details                                                                             |
+| ----------- | ------------------ | ----------------------------------------------------------------------------------- |
+| **Python**  | 3.9 - 3.12         | ⚠️ **NICHT Python 3.13+** (Kompatibilitätsprobleme mit `yt-dlp` & `openai-whisper`) |
+| **FFmpeg**  | Aktuellste Version | [Installation weiter unten](#ffmpeg-setup)                                          |
+| **API Key** | Google Gemini      | Kostenlos von [Google AI Studio](https://ai.google.dev/gemini-api/docs/api-key)     |
 
 ### Vor dem Start - Prüf-Checkliste ✓
 
 ```bash
 # 1. Python Version prüfen
 python --version
-# ✅ Sollte 3.9 oder höher sein
+# ✅ Sollte 3.9 - 3.12 sein (z.B. 3.12.7)
+# ❌ NICHT 3.13 oder höher!
 
 # 2. pip vorhanden?
 pip --version
@@ -166,6 +167,33 @@ pip install -r requirements.txt
 ```
 
 **Erste Installation? Das dauert etwas** (Whisper Model wird heruntergeladen ~140MB)
+
+#### ⚠️ Häufige Fehler & Lösungen
+
+**Problem: `No module named 'pkg_resources'` bei der Installation**
+
+Dies passiert mit Python 3.13/3.14 bei `openai-whisper` oder `yt-dlp`.
+
+**Lösung:**
+
+```bash
+# Cache löschen
+pip cache purge
+
+# Mit --no-cache-dir neu installieren
+pip install -r requirements.txt --no-cache-dir
+
+# Falls immer noch Fehler: Build Tools aktualisieren
+pip install --upgrade pip setuptools wheel
+pip install -r requirements.txt --no-cache-dir
+```
+
+**Wenn gar nichts hilft:** Downgrade auf Python 3.12
+
+```bash
+# Python 3.12 von https://www.python.org/downloads/ installieren
+# Dann venv neu erstellen und nochmal versuchen
+```
 
 ### Environment Variables
 
