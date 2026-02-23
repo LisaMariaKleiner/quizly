@@ -18,7 +18,7 @@ try:
 except ImportError:
     genai = None
 
-from .models import Quiz, Question, Answer
+from ..models import Quiz, Question, Answer
 from .serializers import QuizSerializer, QuizCreateSerializer, QuizUpdateSerializer
 
 
@@ -345,5 +345,3 @@ class QuizDetailView(APIView):
                 {"error": f"An error occurred: {str(e)}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-
-

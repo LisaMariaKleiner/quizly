@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Quiz, Question, Answer
+from ..models import Quiz, Question, Answer
 
 
 class AnswerSerializer(serializers.ModelSerializer):
@@ -48,29 +48,11 @@ class QuizSerializer(serializers.ModelSerializer):
         read_only_fields = ('user', 'created_at', 'updated_at', 'video_url')
 
 
+class QuizCreateSerializer(serializers.Serializer):
+    url = serializers.URLField()
+
+
 class QuizUpdateSerializer(serializers.ModelSerializer):
-    """
-    Serializer for updating quiz fields (title, description)
-    """
     class Meta:
         model = Quiz
         fields = ('title', 'description')
-    
-    def validate_title(self, value):
-        """Validate title is not empty"""
-        if not value or not value.strip():
-            raise serializers.ValidationError("Title cannot be empty.")
-        return value
-
-
-class QuizCreateSerializer(serializers.Serializer):
-    """
-    Serializer for creating a new quiz from a YouTube URL
-    """
-    url = serializers.URLField(required=True)
-    
-    def validate_url(self, value):
-        """Validate that the URL is a YouTube URL"""
-        if 'youtube.com' not in value and 'youtu.be' not in value:
-            raise serializers.ValidationError("Please provide a valid YouTube URL.")
-        return value

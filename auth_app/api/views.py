@@ -76,21 +76,20 @@ def login(request):
             status=status.HTTP_200_OK
         )
         
-        # Set JWT tokens in cookies
         response.set_cookie(
             'access_token',
             tokens['access'],
-            max_age=15 * 60,  # 15 minutes
+            max_age=15 * 60,
             httponly=True,
-            secure=False,  # Set to True in production with HTTPS
+            secure=False,
             samesite='Lax'
         )
         response.set_cookie(
             'refresh_token',
             tokens['refresh'],
-            max_age=7 * 24 * 60 * 60,  # 7 days
+            max_age=7 * 24 * 60 * 60,
             httponly=True,
-            secure=False,  # Set to True in production with HTTPS
+            secure=False,
             samesite='Lax'
         )
         
@@ -114,7 +113,6 @@ def logout(request):
         status=status.HTTP_200_OK
     )
     
-    # Delete tokens from cookies
     response.delete_cookie('access_token')
     response.delete_cookie('refresh_token')
     
@@ -146,13 +144,12 @@ def refresh_token(request):
             status=status.HTTP_200_OK
         )
         
-        # Set new access token cookie
         response.set_cookie(
             'access_token',
             access_token,
-            max_age=15 * 60,  # 15 minutes
+            max_age=15 * 60,
             httponly=True,
-            secure=False,  # Set to True in production with HTTPS
+            secure=False,
             samesite='Lax'
         )
         
