@@ -4,5 +4,6 @@ from . import views
 app_name = 'quiz'
 
 urlpatterns = [
-    # Quiz endpoints will be added here
+    path('quizzes/', views.QuizListCreateView.as_view(), name='quiz-list-create'),
+    path('quizzes/<int:quiz_id>/', views.QuizDetailView.as_view(), name='quiz-detail'),
 ]
