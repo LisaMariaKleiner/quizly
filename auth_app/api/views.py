@@ -120,7 +120,7 @@ def logout(request):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def refresh_token(request):
     """
     Refresh the access token using the refresh token

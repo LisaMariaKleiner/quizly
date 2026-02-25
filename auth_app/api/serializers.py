@@ -40,18 +40,25 @@ class RegisterSerializer(serializers.ModelSerializer):
     def validate(self, data):
         if data['password'] != data['confirmed_password']:
             raise serializers.ValidationError(
-                {'confirmed_password': 'Passwords do not match.'}
+                {'confirmed_password': 'Passwörter stimmen nicht überein.'}
             )
         
-        if User.objects.filter(username=data['username']).exists():
+        # Trim whitespace
+        username = data['username'].strip()
+        email = data['email'].strip()
+        
+        if User.objects.filter(username=username).exists():
             raise serializers.ValidationError(
-                {'username': 'Username already exists.'}
+                {'username': 'Benutzername existiert bereits.'}
             )
         
-        if User.objects.filter(email=data['email']).exists():
+        if User.objects.filter(email=email).exists():
             raise serializers.ValidationError(
-                {'email': 'Email already exists.'}
+                {'email': 'E-Mail existiert bereits.'}
             )
+        
+        data['username'] = username
+        data['email'] = email
         
         return data
 
@@ -83,14 +90,18 @@ class LoginSerializer(serializers.Serializer):
     def validate(self, data):
         from django.contrib.auth import authenticate
         
+        # Trim whitespace from username and password
+        username = data['username'].strip()
+        password = data['password'].strip()
+        
         user = authenticate(
-            username=data['username'],
-            password=data['password']
+            username=username,
+            password=password
         )
         
         if not user:
             raise serializers.ValidationError(
-                'Invalid credentials.'
+                'Ungültige Anmeldedaten. Benutzer oder Passwort nicht korrekt.'
             )
         
         data['user'] = user
