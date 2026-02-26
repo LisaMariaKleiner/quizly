@@ -4,7 +4,7 @@ Django REST API Backend für die Quizly-Anwendung. Erstellt automatisch **10 Qui
 
 1. 📹 Audio-Download mit `yt-dlp`
 2. 📝 Transkription mit **Whisper AI**
-3. 🧠 Quiz-Generierung mit **Google Gemini Flash API**
+3. 🧠 Quiz-Generierung mit **Google Gemini 2.5 Flash API**
 
 ---
 
@@ -29,7 +29,7 @@ Django REST API Backend für die Quizly-Anwendung. Erstellt automatisch **10 Qui
 - ✅ **JWT Authentifizierung** - Token-based Authentication
 - ✅ **YouTube Integration** - Videos direkt von URL verarbeiten
 - ✅ **Automatische Transkription** - Whisper AI (unterstützt Deutsch)
-- ✅ **AI Quiz-Generierung** - Google Gemini Flash API generiert intelligente Fragen
+- ✅ **AI Quiz-Generierung** - Google Gemini 2.5 Flash API generiert intelligente Fragen (schnell & kostengünstig)
 - ✅ **10 Fragen pro Video** - Mit je 4 Antwortmöglichkeiten
 - ✅ **Quiz Management** - CRUD Operations für Quizze
 
@@ -47,7 +47,7 @@ Django REST API Backend für die Quizly-Anwendung. Erstellt automatisch **10 Qui
 
 ### Vor dem Start - Prüf-Checkliste ✓
 
-```bash
+````bash
 # 1. Python Version prüfen
 python --version
 # ✅ Sollte 3.9 - 3.12 sein (z.B. 3.12.7)
@@ -62,11 +62,6 @@ ffmpeg -version
 # ✅ Sollte Version + Info anzeigen
 # ❌ Falls die Fehlschlägt → Siehe FFmpeg-Setup
 
-```
-
-**Alle 5 grün? → Installation kann starten! 🚀**
-
----
 
 ## ⚙️ Installation
 
@@ -80,7 +75,7 @@ ffmpeg -version
 
 ```powershell
 choco install ffmpeg
-```
+````
 
 **Option 2: Scoop**
 
