@@ -14,7 +14,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 try:
-    from google import genai
+    import google.generativeai as genai
 except ImportError:
     genai = None
 
@@ -97,8 +97,11 @@ class QuizListCreateView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
             
         except Exception as e:
+            import traceback
+            error_trace = traceback.format_exc()
+            print(f"❌ Error creating quiz: {error_trace}")
             return Response(
-                {"error": f"An error occurred: {str(e)}"},
+                {"error": f"Failed to create quiz: {str(e)}", "details": error_trace},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
     
@@ -147,7 +150,6 @@ class QuizListCreateView(APIView):
                     'transcript': transcript,
                 }
         finally:
-            # Cleanup temp files
             if temp_dir and os.path.exists(temp_dir):
                 import shutil
                 try:
@@ -174,13 +176,18 @@ class QuizListCreateView(APIView):
     
     def _generate_questions(self, video_info):
         """
-        Generate quiz questions using Google Gemini Flash AI.
+        Generate quiz questions using Google Gemini AI (gemini-2.5-flash).
         Raises exception if AI is unavailable or fails - no fallback.
         """
         if genai is None:
-            raise RuntimeError("Google Gemini module (google-genai) not installed or not available.")
+            raise RuntimeError("Google Gemini module (google-generativeai) not installed or not available.")
         
-        client = genai.Client()
+        api_key = os.environ.get("GEMINI_API_KEY")
+        if not api_key:
+            raise RuntimeError("GEMINI_API_KEY environment variable not set.")
+        
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel('gemini-2.5-flash')
         
         transcript = video_info.get('transcript', '')
         if not transcript:
@@ -211,26 +218,47 @@ Wichtig:
 - Nur JSON zurückgeben, nichts anderes
 """
         
-        print("Generating questions with Gemini...")
-        response = client.models.generate_content(
-            model="gemini-3-flash-preview",
-            contents=prompt
-        )
-        response_text = response.text.strip()
+        print("Generating questions with Gemini (gemini-2.5-flash)...")
+        try:
+            response = model.generate_content(prompt)
+        except Exception as e:
+            print(f"❌ Gemini API error during content generation: {str(e)}")
+            raise RuntimeError(f"Gemini API failed to generate content: {str(e)}")
         
-        # Parse JSON response
-        # Try to extract JSON from response
+        try:
+            if not response or not hasattr(response, 'text'):
+                print(f"❌ Gemini returned response without text property. Response object: {type(response)}")
+                if hasattr(response, 'candidates') and response.candidates:
+                    print(f"Response has {len(response.candidates)} candidates")
+                    if hasattr(response.candidates[0], 'content'):
+                        print(f"First candidate content: {response.candidates[0].content}")
+                raise ValueError("Gemini API returned response without text content.")
+            
+            response_text = response.text.strip()
+            
+            if not response_text:
+                print(f"❌ Gemini returned empty text")
+                raise ValueError("Gemini API returned empty response text.")
+            
+        except AttributeError as e:
+            print(f"❌ Error accessing response.text: {str(e)}")
+            print(f"Response object type: {type(response)}")
+            print(f"Response object attributes: {dir(response)}")
+            raise RuntimeError(f"Gemini response format error: {str(e)}")
+        
         if "```json" in response_text:
-            response_text = response_text.split("```json")[1].split("```")[0]
+            response_text = response_text.split("```json")[1].split("```")[0].strip()
         elif "```" in response_text:
-            response_text = response_text.split("```")[1].split("```")[0]
+            response_text = response_text.split("```")[1].split("```")[0].strip()
         
         try:
             questions = json.loads(response_text)
         except json.JSONDecodeError as e:
-            raise ValueError(f"Gemini returned invalid JSON: {str(e)}. Response: {response_text[:200]}")
+            print(f"❌ JSON parsing error: {str(e)}. Response preview: {response_text[:500]}")
+            raise ValueError(f"Gemini returned invalid JSON: {str(e)}")
         
         if not questions or len(questions) == 0:
+            print("❌ Gemini returned empty questions list")
             raise ValueError("Gemini returned empty questions list.")
         
         print(f"✅ Generated {len(questions)} questions with Gemini")
